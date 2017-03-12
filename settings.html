@@ -1,0 +1,116 @@
+<html>
+
+  <head>
+    <title>Sniffr</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="external/jquery-3.1.1.min.js"></script>
+    <script src="external/socket.io-1.4.5.js"></script>
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script src="modules/settings.js"></script>
+    <link rel="stylesheet" href="external/settings.css" type="text/css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+    <script src="modules/UI.js"></script>
+
+  </head>
+
+
+  <body>
+
+    <!-- Page -->
+    <div class = 'mdl-layout__container'>
+      <!-- Simple header with fixed tabs. -->
+      <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header
+                  mdl-layout--fixed-tabs">
+        <header class="mdl-layout__header">
+          <div class="mdl-layout__header-row">
+            <!-- Title -->
+            <span class="mdl-layout-title">Sniffr</span>
+          </div>
+        </header>
+        <div class="mdl-layout__drawer">
+          <span class="mdl-layout-title">Sniffr</span>
+            <!-- Navigation -->
+            <nav class="mdl-navigation">
+              <a class="mdl-navigation__link" href="http://localhost:3000/">Offer</a>
+              <a class="mdl-navigation__link" href="http://localhost:3000/get">Request</a>
+              <a class="mdl-navigation__link" href="http://localhost:3000/settings">Settings</a>
+            </nav>
+        </div>
+
+        <div class="login-page">
+  <div class="form">
+    <form class="register-form">
+      <input type="text" placeholder="name"/>
+      <input type="password" placeholder="password"/>
+      <input type="text" placeholder="email address"/>
+      <button>create</button>
+      <p class="message">Already registered? <a href="#">Sign In</a></p>
+    </form>
+    <form class="login-form">
+      <input type="text" placeholder="username"/>
+      <input type="password" placeholder="password"/>
+      <button>login</button>
+      <p class="message">Not registered? <a href="#">Create an account</a></p>
+    </form>
+  </div>
+</div>
+
+
+
+        <main class="mdl-layout__content">
+          <section class="mdl-layout__tab-panel is-active" id="fixed-tab-1">
+
+          </section>
+        </main>
+
+      </div>
+
+      <!-- Notification container -->
+      <div id="notification-container" class="mdl-js-snackbar mdl-snackbar">
+        <div class="mdl-snackbar__text"></div>
+        <button class="mdl-snackbar__action" type="button"></button>
+      </div>
+    </div>
+  </body>
+
+
+  <script>
+
+    // Socket.
+    socket = io()
+
+    UI.init()
+
+    // Location methods.
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+      } else {
+        UI.showNotification("Geolocation is not supported by this browser.")
+      }
+    }
+    function showPosition(position) {
+        console.log("Latitude: " + position.coords.latitude +
+        "<br>Longitude: " + position.coords.longitude)
+        socket.emit("location", { id: my_id, data:
+          { latitude: position.coords.latitude, longitude: position.coords.longitude }})
+    }
+
+    // Get id.
+    my_id = 0
+    socket.on("id", function(response) {
+      console.log("My id is: " + response.id)
+      my_id = response.id
+      // Send location.
+      getLocation()
+    })
+
+
+
+  </script>
+
+</html>

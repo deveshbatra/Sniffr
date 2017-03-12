@@ -1,0 +1,21 @@
+{
+  "name": "sniffr",
+  "version": "1.0.0",
+  "description": "Reduce food wasting by sharing extra food.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Oxford team for Fb Hack",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "fs": "0.0.1-security",
+    "http": "0.0.0",
+    "multer": "^1.3.0",
+    "path": "^0.12.7",
+    "request": "^2.81.0",
+    "socket.io": "^1.7.3"
+  }
+}

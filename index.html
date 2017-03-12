@@ -1,0 +1,166 @@
+<html>
+
+  <head>
+    <title>Sniffr</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="external/jquery-3.1.1.min.js"></script>
+    <script src="external/socket.io-1.4.5.js"></script>
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+    <script src="modules/UI.js"></script>
+
+  </head>
+
+
+  <body>
+
+    <!-- Page -->
+    <div class = 'mdl-layout__container'>
+      <!-- Simple header with fixed tabs. -->
+      <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header
+                  mdl-layout--fixed-tabs">
+        <header class="mdl-layout__header">
+          <div class="mdl-layout__header-row">
+            <!-- Title -->
+            <span class="mdl-layout-title">Sniffr</span>
+          </div>
+          <!-- Tabs -->
+        </header>
+        <div class="mdl-layout__drawer">
+          <span class="mdl-layout-title">Sniffr</span>
+            <!-- Navigation -->
+            <nav class="mdl-navigation">
+              <a class="mdl-navigation__link" href="http://localhost:3000/">Offer</a>
+              <a class="mdl-navigation__link" href="http://localhost:3000/get">Request</a>
+              <a class="mdl-navigation__link" href="http://localhost:3000/settings">Sign Up</a>
+            </nav>
+        </div>
+        <main class="mdl-layout__content">
+          <section class="mdl-layout__tab-panel is-active" id="fixed-tab-1">
+            <div class="page-content mdl-grid">
+
+              <div class="mdl-cell mdl-cell--4-col mdl-cell--2-col-phone"></div>
+              <div class="mdl-cell mdl-cell--4-col mdl-cell--6-col-phone" style = "margin: 20px">
+                <!-- Form for submitting food. -->
+                <form id = "uploadForm" enctype = "multipart/form-data" action =
+                    "/file_upload" method = "post">
+                  <!-- Image. -->
+
+                  <input id="food_image" name="userPhoto" type="file" accept="image/*" capture="camera" style = "margin-bottom: 12px">
+
+                  <!-- Description. -->
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style = "width: 100%">
+                    <input name = "food_description" id = "food_description" class="mdl-textfield__input input_listened" type="text">
+                    <label class="mdl-textfield__label" for="food_description">Add description...</label>
+                  </div>
+
+                  <!-- No people -->
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style = "width: 100%">
+                    <input class="mdl-textfield__input input_listened" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="number_people_offer">
+                    <label class="mdl-textfield__label" for="number_people_offer">People served (2,3?)</label>
+                    <span class="mdl-textfield__error">Input is not a number!</span>
+                  </div>
+
+                  <!-- Minutes -->
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style = "width: 100%">
+                    <input class="mdl-textfield__input input_listened" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="minutes_waiting">
+                    <label class="mdl-textfield__label" for="minutes_waiting">Minutes willing to wait...</label>
+                    <span class="mdl-textfield__error">Input is not a number!</span>
+                  </div>
+
+
+                  <!-- Submit. -->
+<p align = "center">
+                  <input id="food_donate" type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" name = "submit" value="Offer" style = "margin-top:10px">
+                  </input>
+</p>
+                  <div id = 'demo'></div>
+
+                </form>
+              </div>
+              <div class="mdl-cell mdl-cell--4-col mdl-cell--2-col-phone"></div>
+
+            </div>
+          </section>
+          <section class="mdl-layout__tab-panel" id="fixed-tab-2">
+
+            <div class="page-content mdl-grid">
+
+              <div class="mdl-cell mdl-cell--4-col mdl-cell--2-col-phone"></div>
+              <div class="mdl-cell mdl-cell--4-col mdl-cell--6-col-phone" style = "margin: 20px">
+
+              </div>
+              <div class="mdl-cell mdl-cell--4-col mdl-cell--2-col-phone"></div>
+
+
+
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <!-- Notification container -->
+      <div id="notification-container" class="mdl-js-snackbar mdl-snackbar">
+        <div class="mdl-snackbar__text"></div>
+        <button class="mdl-snackbar__action" type="button"></button>
+      </div>
+    </div>
+  </body>
+
+  <script>
+
+    // Socket.
+    socket = io()
+
+    UI.init()
+
+    // Location methods.
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+      } else {
+        UI.showNotification("Geolocation is not supported by this browser.")
+      }
+    }
+    function showPosition(position) {
+        console.log("Latitude: " + position.coords.latitude +
+        "<br>Longitude: " + position.coords.longitude)
+        socket.emit("location", { id: my_id, data:
+          { latitude: position.coords.latitude, longitude: position.coords.longitude }})
+    }
+
+    // Get id.
+    my_id = 0
+    socket.on("id", function(response) {
+      console.log("My id is: " + response.id)
+      my_id = response.id
+      // Send location.
+      getLocation()
+    })
+
+    // New offer.
+    socket.on("new_offer", function(response) {
+
+      console.log(response)
+      $("#new_offers").append('<div id = "whole'+response.unique_id+'" class="demo-card-square mdl-card mdl-shadow--2dp" style = "width: 100%; margin-top: 20px">                    <div class="mdl-card__title mdl-card--expand" style = "background-image: url(\''+response.details.image_url+'\'); background-repeat: no-repeat; background-size:100%; min-height: 160px">                      <h2 class="mdl-card__title-text" style = "color: white; text-shadow: 1px 1px black;">'+response.estimate+' min away</h2>                    </div>                    <div class="mdl-card__supporting-text">                      '+response.details.description+', feeds '+response.details.no_people+' person                    </div>                    <div class="mdl-card__actions mdl-card--border">                      <a align="center" id = "acc'+response.unique_id+'" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">                        Accept                      </a>                    </div>                  </div>')
+
+      $('#acc' + response.unique_id).click(function() {
+        console.log("buy:" + response.unique_id)
+        socket.emit("accept_offer", { id: my_id, his_id: response.unique_id })
+      })
+    })
+
+    // Withdraw offer.
+    socket.on("withdraw_offer", function(response) {
+      $('#whole' + response.id).hide()
+    })
+
+
+
+  </script>
+
+</html>

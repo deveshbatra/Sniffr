@@ -1,0 +1,32 @@
+<html>
+
+  <head>
+    <title>Listener</title>
+
+    <script src="external/jquery-3.1.1.min.js"></script>
+    <script src="external/socket.io-1.4.5.js"></script>
+
+  </head>
+
+
+  <body>
+
+    <!-- Page -->
+    <div id = 'page'>
+
+    </div>
+
+    <script>
+
+      var socket = io()
+      socket.emit('listen', {})
+      socket.on('debug', function(response) {
+        if(response.hasOwnProperty('message'))
+          $('#page').append("<div>" + response.message + "</div>")
+      })
+
+    </script>
+
+  </body>
+
+</html>

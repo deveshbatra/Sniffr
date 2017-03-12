@@ -1,0 +1,153 @@
+<html>
+
+  <head>
+    <title>Sniffr</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="external/jquery-3.1.1.min.js"></script>
+    <script src="external/socket.io-1.4.5.js"></script>
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+    <script src="modules/UI.js"></script>
+
+  </head>
+
+
+  <body>
+
+    <!-- Page -->
+    <div class = 'mdl-layout__container'>
+      <!-- Simple header with fixed tabs. -->
+      <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header
+                  mdl-layout--fixed-tabs">
+        <header class="mdl-layout__header">
+          <div class="mdl-layout__header-row">
+            <!-- Title -->
+            <span class="mdl-layout-title">Sniffr</span>
+          </div>
+        </header>
+        <div class="mdl-layout__drawer">
+          <span class="mdl-layout-title">Sniffr</span>
+            <!-- Navigation -->
+            <nav class="mdl-navigation">
+              <a class="mdl-navigation__link" href="http://localhost:3000/">Offer</a>
+              <a class="mdl-navigation__link" href="http://localhost:3000/get">Request</a>
+              <a class="mdl-navigation__link" href="http://localhost:3000/settings">Settings</a>
+            </nav>
+        </div>
+        <main class="mdl-layout__content">
+          <section class="mdl-layout__tab-panel is-active" id="fixed-tab-1">
+            <div class="page-content mdl-grid">
+
+              <div class="mdl-cell mdl-cell--4-col mdl-cell--2-col-phone"></div>
+              <div class="mdl-cell mdl-cell--4-col mdl-cell--6-col-phone" style = "margin: 20px">
+
+
+                <div class="demo-card-wide mdl-card mdl-shadow--2dp" style = "width: 100%; min-height:20px; margin-top: 20px;" id = 'live_message'>
+                  <div class="mdl-card__supporting-text">
+                    Waiting ...
+                  </div>
+                </div>
+
+
+                <a id = "cancel_food" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" style = "margin-top: 15px">
+                  Cancel
+                </a>
+
+                <div id="map" style = "width: 100%; height: 200px;"></div>
+
+              </div>
+              <div class="mdl-cell mdl-cell--4-col mdl-cell--2-col-phone"></div>
+
+
+            </div>
+          </section>
+          <section class="mdl-layout__tab-panel" id="fixed-tab-2">
+          </section>
+        </main>
+      </div>
+
+      <!-- Notification container -->
+      <div id="notification-container" class="mdl-js-snackbar mdl-snackbar">
+        <div class="mdl-snackbar__text"></div>
+        <button class="mdl-snackbar__action" type="button"></button>
+      </div>
+    </div>
+  </body>
+
+
+
+
+
+
+
+
+  <script>
+
+    // Socket.
+    socket = io()
+
+    UI.init()
+
+    // Get id.
+    my_id = 0
+    not_asked = true
+    socket.on("id", function(response) {
+      console.log("My id is: " + response.id)
+      my_id = response.id
+      // Send location.
+      if(not_asked) {
+        not_asked = false
+        socket.emit("last_id", { id: my_id })
+      }
+    })
+
+
+    socket.on("someone_accepted", function(response) {
+      console.log("Accepted offer: ")
+      console.log(response)
+
+      $("#cancel_food").hide()
+      $("#live_message").hide()
+
+
+      $("#map").show()
+      initMap(response.location.latitude, response.location.longitude)
+
+
+    // On cancel click.
+    $("#cancel_food").click(function() {
+      socket.emit("cancel_my_offer", {id: my_id})
+    })
+    })
+    // socket.on("alert", function(response) {
+    //   console.log("Alert")
+    //   console.log(response)
+    // })
+
+
+      function initMap(lat, lng) {
+        var uluru = {lat: lat, lng: lng};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 15,
+          center: uluru
+        });
+        var marker = new google.maps.Marker({
+          position: uluru,
+          map: map
+        });
+      }
+
+
+  </script>
+
+
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMOUvKLylLsoUg_R5S0r3OStpfEoMFCIs">
+    </script>
+
+</html>
